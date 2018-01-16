@@ -271,7 +271,7 @@ impl Network {
             events.push(NetworkEvent::Gone(lost_elder));
         }
         for gained_elder in &new_elders - &old_elders {
-            events.push(NetworkEvent::Live(gained_elder));
+            events.push(NetworkEvent::Live(gained_elder, false));
         }
         events.push(NetworkEvent::PrefixChange(merged.prefix()));
         events
@@ -287,7 +287,7 @@ impl Network {
         self.event_queue
             .entry(prefix)
             .or_insert_with(Vec::new)
-            .push(NetworkEvent::Live(node));
+            .push(NetworkEvent::Live(node, true));
     }
 
     /// Calculates the sum of weights for the dropping probability.
@@ -324,7 +324,7 @@ impl Network {
                 .filter(|&pfx| pfx.is_neighbour(src_section))
                 .collect();
             // relocate to the neighbour with the least peers as per the document
-            neighbours.sort_by_key(|pfx| self.nodes.get(pfx).unwrap().len());
+            neighbours.sort_by_key(|pfx| pfx.len() as usize * 10000 + self.nodes.get(pfx).unwrap().len());
             let neighbour = if let Some(n) = neighbours.first() {
                 n
             } else {
@@ -341,7 +341,7 @@ impl Network {
         self.event_queue
             .entry(*neighbour)
             .or_insert_with(Vec::new)
-            .push(NetworkEvent::Live(node));
+            .push(NetworkEvent::Live(node, true));
     }
 
     /// Drops a random node from the network by sending a `Lost` event to the section.
@@ -389,7 +389,7 @@ impl Network {
             self.event_queue
                 .entry(prefix)
                 .or_insert_with(Vec::new)
-                .push(NetworkEvent::Live(node));
+                .push(NetworkEvent::Live(node, true));
         }
     }
 

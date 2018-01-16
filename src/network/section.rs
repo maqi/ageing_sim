@@ -113,7 +113,7 @@ impl Section {
     pub fn handle_event(&mut self, event: NetworkEvent, params: &Params) -> Vec<SectionEvent> {
         let mut events = vec![];
         let other_event = match event {
-            NetworkEvent::Live(node) => self.add(node, params),
+            NetworkEvent::Live(node, _) => self.add(node, params),
             NetworkEvent::Relocated(node) | NetworkEvent::Gone(node) => self.relocate(node.name()),
             NetworkEvent::Lost(name) => self.remove(name),
             NetworkEvent::PrefixChange(p) => {
@@ -183,11 +183,11 @@ impl Section {
     /// Checks the hash of the NetworkEvent and returns any SectionEvents triggered by it due to
     /// node ageing - in particular, relocations
     fn check_ageing(&mut self, event: NetworkEvent) -> Vec<SectionEvent> {
-        if let Some(node) = event.get_node() {
-            if !node.is_adult() && self.prefix.len() > 4 {
-                return vec![];
-            }
-        }
+//        if let Some(node) = event.get_node() {
+//            if !node.is_adult() && self.prefix.len() > 4 {
+//                return vec![];
+//            }
+//        }
         if !event.should_count() {
             return vec![];
         }
@@ -411,7 +411,7 @@ impl fmt::Debug for Section {
             self.elders.len(),
             self.adults.len() - self.elders.len(),
             self.infants.len(),
-            self.nodes_by_age(),
+            self.nodes.len(),
         )
     }
 }

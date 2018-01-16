@@ -9,7 +9,9 @@ use tiny_keccak::sha3_256;
 /// the outside.
 #[derive(Clone, Copy, Serialize, Deserialize)]
 pub enum NetworkEvent {
-    Live(Node),
+    // Boolean parameter indicates if event should count for node ageing.
+    // It is true except for the specific case of a Live event generated during a merge operation
+    Live(Node, bool),
     Lost(Name),
     Gone(Node),
     Relocated(Node),
@@ -27,7 +29,7 @@ impl NetworkEvent {
     /// Returns the peer passed in the event (if any).
     pub fn get_node(&self) -> Option<Node> {
         match *self {
-            NetworkEvent::Live(n) | NetworkEvent::Gone(n) | NetworkEvent::Relocated(n) => Some(n),
+            NetworkEvent::Live(n, _) | NetworkEvent::Gone(n) | NetworkEvent::Relocated(n) => Some(n),
             _ => None,
         }
     }
@@ -36,7 +38,7 @@ impl NetworkEvent {
     /// churn in ageing peers in the section. Currently true for all events.
     pub fn should_count(&self) -> bool {
         match *self {
-            NetworkEvent::StartMerge(_) => false,
+            NetworkEvent::StartMerge(_) | NetworkEvent::Gone(_) | NetworkEvent::Live(_, false) => false,
             _ => true,
         }
     }
