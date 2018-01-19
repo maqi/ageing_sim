@@ -58,10 +58,12 @@ fn get_params() -> Params {
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("norejectyoung")
+            Arg::with_name("max_young")
                 .short("y")
-                .long("norejectyoung")
-                .help("Don't reject young peers when one already present in the section"),
+                .long("max_young")
+                .value_name("MAX")
+                .help("Set the max number of young peers we allow in a section; 0 value means no control; default: 1")
+                .takes_value(true),
         )
         .arg(
             Arg::with_name("p_add1")
@@ -116,7 +118,11 @@ fn get_params() -> Params {
         .parse()
         .ok()
         .expect("Drop distribution must be exp/exponential/rev/reverse-proportional.");
-    let norejectyoung = matches.is_present("norejectyoung");
+    let max_young = matches
+        .value_of("max_young")
+        .unwrap_or("1")
+        .parse()
+        .expect("Max number of young peers must be a number!");
     let inc_age = matches.is_present("age_inc");
     let p_add1 = matches
         .value_of("p_add1")
@@ -138,7 +144,7 @@ fn get_params() -> Params {
     Params {
         init_age,
         split_strategy: split,
-        norejectyoung,
+        max_young,
         growth: (p_add1, p_drop1),
         structure_output_file,
         drop_dist,

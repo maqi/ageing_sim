@@ -38,7 +38,7 @@ impl FromStr for DropDist {
 pub struct Params {
     pub init_age: u8,
     pub split_strategy: Strategy,
-    pub norejectyoung: bool,
+    pub max_young: usize,
     pub growth: (u8, u8),
     pub structure_output_file: Option<String>,
     pub drop_dist: DropDist,

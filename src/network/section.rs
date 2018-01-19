@@ -193,7 +193,7 @@ impl Section {
         }
         let event_hash = event.hash();
         let trailing_zeros = trailing_zeros(event_hash);
-        let node_to_age = self.choose_for_relocation(trailing_zeros);
+        let node_to_age = self.choose_for_relocation(trailing_zeros + 1);
         if let Some(node) = node_to_age {
             let _ = self.relocate(node.name());
             vec![SectionEvent::NeedRelocate(node)]
@@ -204,8 +204,8 @@ impl Section {
 
     /// Adds a node to the section and returns whether the event was handled
     fn add(&mut self, node: Node, params: &Params) -> EventResult {
-        if !params.norejectyoung && node.age() == params.init_age
-            && self.nodes.values().any(|n| n.age() == params.init_age)
+        if params.max_young != 0 && node.age() == params.init_age
+            && self.nodes.values().filter(|n| n.age() <= params.init_age).count() >= params.max_young
             && self.is_complete()
         {
             // disallow more than one node aged 1 per section if the section is complete
