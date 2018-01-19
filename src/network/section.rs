@@ -146,10 +146,10 @@ impl Section {
         }
         match other_event {
             EventResult::Handled => {
-                events.extend(self.check_ageing(event));
+                events.extend(self.check_ageing(event, params));
             }
             EventResult::HandledWithEvent(ev) => {
-                events.extend(self.check_ageing(event));
+                events.extend(self.check_ageing(event, params));
                 events.push(ev);
             }
             EventResult::Ignored => (),
@@ -182,7 +182,7 @@ impl Section {
 
     /// Checks the hash of the NetworkEvent and returns any SectionEvents triggered by it due to
     /// node ageing - in particular, relocations
-    fn check_ageing(&mut self, event: NetworkEvent) -> Vec<SectionEvent> {
+    fn check_ageing(&mut self, event: NetworkEvent, params: &Params) -> Vec<SectionEvent> {
 //        if let Some(node) = event.get_node() {
 //            if !node.is_adult() && self.prefix.len() > 4 {
 //                return vec![];
@@ -193,7 +193,7 @@ impl Section {
         }
         let event_hash = event.hash();
         let trailing_zeros = trailing_zeros(event_hash);
-        let node_to_age = self.choose_for_relocation(trailing_zeros + 1);
+        let node_to_age = self.choose_for_relocation(trailing_zeros + params.init_age);
         if let Some(node) = node_to_age {
             let _ = self.relocate(node.name());
             vec![SectionEvent::NeedRelocate(node)]
