@@ -39,6 +39,7 @@ pub struct Params {
     pub init_age: u8,
     pub split_strategy: Strategy,
     pub max_young: usize,
+    pub iterations: usize,
     pub growth: (u8, u8),
     pub structure_output_file: Option<String>,
     pub drop_dist: DropDist,

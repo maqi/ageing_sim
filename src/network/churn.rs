@@ -26,14 +26,6 @@ impl NetworkEvent {
         sha3_256(&serde_json::to_vec(self).unwrap())
     }
 
-    /// Returns the peer passed in the event (if any).
-    pub fn get_node(&self) -> Option<Node> {
-        match *self {
-            NetworkEvent::Live(n, _) | NetworkEvent::Gone(n) | NetworkEvent::Relocated(n) => Some(n),
-            _ => None,
-        }
-    }
-
     /// This function determines whether an event should count towards
     /// churn in ageing peers in the section. Currently true for all events.
     pub fn should_count(&self) -> bool {

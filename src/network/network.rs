@@ -8,6 +8,7 @@ use network::node::Node;
 use network::section::Section;
 use network::churn::{NetworkEvent, SectionEvent};
 use params::Params;
+use stats::Stats;
 
 /// A wrapper struct that handles merges in progress
 /// When two sections merge, they need to handle a bunch
@@ -431,5 +432,44 @@ impl fmt::Debug for Network {
             self.nodes.values(),
             self.left_nodes
         )
+    }
+}
+
+// Display network summary as a markdown table
+impl fmt::Display for Network {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        // Network summary
+        try!(writeln!(fmt, "|    Metrics    |  Values  |"));
+        try!(writeln!(fmt, "|:--------------|---------:|"));
+        try!(writeln!(fmt, "| Adds          | {} |", self.output.adds));
+        try!(writeln!(fmt, "| Drops         | {} |", self.output.drops));
+        try!(writeln!(fmt, "| Rejoins       | {} |", self.output.rejoins));
+        try!(writeln!(fmt, "| Relocations   | {} |", self.output.relocations));
+        try!(writeln!(fmt, "| Rejections    | {} |", self.output.rejections));
+        try!(writeln!(fmt, "| Churns        | {} |", self.output.churn));
+        let sections = self.num_sections();
+        try!(writeln!(fmt, "| Sections      | {} |", sections));
+        let complete = self.complete_sections();
+        if complete != sections {
+            try!(writeln!(fmt, "| Complete      | {} |", complete));
+        }
+        try!(writeln!(fmt, "| Section nodes | {} |", usize::sum(self.nodes.values().map(|s| s.len()))));
+        try!(writeln!(fmt, "| Left nodes    | {} |", self.left_nodes.len()));
+        try!(writeln!(fmt));
+
+        // Distribution of sections per prefix length
+        let mut distribution : BTreeMap<u8, Vec<usize>> = BTreeMap::new();
+        for (pfx, section) in &self.nodes {
+            let mut entry = distribution.entry(pfx.len()).or_insert(Vec::new());
+            entry.push(section.len());
+        }
+        let mut lengths: Vec<u8> = distribution.keys().cloned().collect();
+        lengths.sort();
+        try!(writeln!(fmt, "| Prefix len {}", Stats::get_header_line()));
+        try!(writeln!(fmt, "|:-----------{}", Stats::get_separator_line()));
+        for i in lengths {
+            try!(writeln!(fmt, "| {} | {}", i, Stats::new(distribution.get(&i).unwrap())))
+        }
+        writeln!(fmt, "| All | {}", Stats::new(&self.nodes.values().map(|s| s.len()).collect()))
     }
 }

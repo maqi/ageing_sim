@@ -9,6 +9,7 @@ extern crate tiny_keccak;
 mod network;
 mod random;
 mod params;
+mod stats;
 
 use random::random_range;
 use network::{Network, NetworkStructure};
@@ -63,6 +64,14 @@ fn get_params() -> Params {
                 .long("max_young")
                 .value_name("MAX")
                 .help("Set the max number of young peers we allow in a section; 0 value means no control; default: 1")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("iterations")
+                .short("n")
+                .long("iterations")
+                .value_name("ITER")
+                .help("Number of iterations; default: 100000")
                 .takes_value(true),
         )
         .arg(
@@ -123,6 +132,11 @@ fn get_params() -> Params {
         .unwrap_or("1")
         .parse()
         .expect("Max number of young peers must be a number!");
+    let iterations = matches
+        .value_of("iterations")
+        .unwrap_or("100000")
+        .parse()
+        .expect("Number of iterations must be a number!");
     let inc_age = matches.is_present("age_inc");
     let p_add1 = matches
         .value_of("p_add1")
@@ -145,6 +159,7 @@ fn get_params() -> Params {
         init_age,
         split_strategy: split,
         max_young,
+        iterations,
         growth: (p_add1, p_drop1),
         structure_output_file,
         drop_dist,
@@ -171,7 +186,7 @@ fn main() {
     let params = get_params();
     let mut network = Network::new(params.clone());
 
-    for i in 0..100000 {
+    for i in 0..params.iterations {
         println!("Iteration {}...", i);
         // Generate a random event...
         random_event(&mut network, params.growth);
@@ -181,15 +196,10 @@ fn main() {
         network.process_events();
     }
 
-    println!("Network state:\n{:?}", network);
+    println!("Network state:\n{}", network);
     println!("");
 
     println!("{:?}\n", params.clone());
-    println!(
-        "Number of sections: {} (complete: {})",
-        network.num_sections(),
-        network.complete_sections()
-    );
 
     let age_dist = network.age_distribution();
     println!("\nAge distribution:");

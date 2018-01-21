@@ -183,11 +183,6 @@ impl Section {
     /// Checks the hash of the NetworkEvent and returns any SectionEvents triggered by it due to
     /// node ageing - in particular, relocations
     fn check_ageing(&mut self, event: NetworkEvent, params: &Params) -> Vec<SectionEvent> {
-//        if let Some(node) = event.get_node() {
-//            if !node.is_adult() && self.prefix.len() > 4 {
-//                return vec![];
-//            }
-//        }
         if !event.should_count() {
             return vec![];
         }
