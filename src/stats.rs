@@ -14,7 +14,7 @@ impl Stats {
         let mut max = 0usize;
         let mut min = usize::MAX;
         for val in values {
-            sum += val;
+            sum += *val;
             if max < *val {
                 max = *val;
             }
@@ -56,7 +56,15 @@ impl Stats {
 impl fmt::Display for Stats {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(2usize);
-        try!(write!(f, "{} | {:.*} | {} | {} | ", self.count, precision, self.average, self.min, self.max));
+        try!(write!(
+            f,
+            "{} | {:.*} | {} | {} | ",
+            self.count,
+            precision,
+            self.average,
+            self.min,
+            self.max
+        ));
         match self.standard_deviation {
             None => write!(f, "None |"),
             Some(standard_deviation) => write!(f, "{:.*} |", precision, standard_deviation),

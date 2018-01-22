@@ -117,7 +117,7 @@ impl Section {
             NetworkEvent::Relocated(node) | NetworkEvent::Gone(node) => self.relocate(node.name()),
             NetworkEvent::Lost(name) => self.remove(name),
             NetworkEvent::PrefixChange(p) => {
-                println!("{:?} PrefixChange to {:?}", self.prefix, p);
+                info!("{:?} PrefixChange to {:?}", self.prefix, p);
                 EventResult::Handled
             }
             NetworkEvent::StartMerge(prefix) => {
@@ -125,7 +125,7 @@ impl Section {
                     // in order to accept new nodes, we must know that we are merging
                     self.verifying_prefix = prefix;
                     self.merging = true;
-                    println!(
+                    info!(
                         "MERGE: {:?} (verifying: {:?}) StartMerge({:?})",
                         self.prefix, self.verifying_prefix, prefix
                     );
@@ -141,7 +141,7 @@ impl Section {
         }
         if self.should_split(params) {
             self.splitting = true;
-            println!("{:?} Requesting a split", self.prefix);
+            info!("{:?} Requesting a split", self.prefix);
             events.push(SectionEvent::RequestSplit);
         }
         match other_event {
@@ -205,7 +205,7 @@ impl Section {
         {
             // disallow more than one node aged 1 per section if the section is complete
             // (all elders are adults)
-            println!("Node {:?} refused in section {:?}", node, self.prefix);
+            info!("Node {:?} refused in section {:?}", node, self.prefix);
             return EventResult::HandledWithEvent(SectionEvent::NodeRejected(node));
         }
         assert!(
@@ -275,7 +275,7 @@ impl Section {
         let mut churn0 = vec![];
         let mut churn1 = vec![];
         let (prefix0, prefix1) = (self.prefix.extend(0), self.prefix.extend(1));
-        println!(
+        info!(
             "Splitting {:?} into {:?} and {:?}",
             self.prefix, prefix0, prefix1
         );
