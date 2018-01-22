@@ -28,7 +28,8 @@ impl FromStr for DropDist {
     fn from_str(s: &str) -> Result<Self, ()> {
         match s {
             "exp" | "exponential" => Ok(DropDist::Exponential),
-            "rev" | "reverse-proportional" => Ok(DropDist::RevProp),
+            "rev" |
+            "reverse-proportional" => Ok(DropDist::RevProp),
             _ => Err(()),
         }
     }
@@ -40,6 +41,7 @@ pub struct Params {
     pub split_strategy: Strategy,
     pub max_young: usize,
     pub iterations: usize,
+    pub summary_intervals: usize,
     pub growth: (u8, u8),
     pub structure_output_file: Option<String>,
     pub drop_dist: DropDist,

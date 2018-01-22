@@ -1,4 +1,6 @@
 extern crate clap;
+#[macro_use]
+extern crate log;
 extern crate rand;
 extern crate serde;
 #[macro_use]
@@ -75,6 +77,14 @@ fn get_params() -> Params {
                 .takes_value(true),
         )
         .arg(
+            Arg::with_name("summary_intervals")
+                .short("summary")
+                .long("summary_intervals")
+                .value_name("SUMMARY_INTERVALS")
+                .help("Intervals of summary; default: 10000")
+                .takes_value(true),
+        )
+        .arg(
             Arg::with_name("p_add1")
                 .long("padd1")
                 .value_name("P")
@@ -137,6 +147,11 @@ fn get_params() -> Params {
         .unwrap_or("100000")
         .parse()
         .expect("Number of iterations must be a number!");
+    let summary_intervals = matches
+        .value_of("summary_intervals")
+        .unwrap_or("10000")
+        .parse()
+        .expect("Number of summary intervals must be a number!");
     let inc_age = matches.is_present("age_inc");
     let p_add1 = matches
         .value_of("p_add1")
@@ -160,6 +175,7 @@ fn get_params() -> Params {
         split_strategy: split,
         max_young,
         iterations,
+        summary_intervals,
         growth: (p_add1, p_drop1),
         structure_output_file,
         drop_dist,
@@ -187,7 +203,11 @@ fn main() {
     let mut network = Network::new(params.clone());
 
     for i in 0..params.iterations {
-        println!("Iteration {}...", i);
+        if i % params.summary_intervals == 0 {
+            println!("Iteration {}...", i);
+            println!("Network state:\n{}", network);
+            println!("");            
+        }
         // Generate a random event...
         random_event(&mut network, params.growth);
         // ... and process the churn cascade that may happen

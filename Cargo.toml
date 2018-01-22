@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Bartłomiej Kamiński <fizyk20@gmail.com>"]
 
 [dependencies]
+log = "~0.3.8"
 rand = "0.3"
 serde = "1.0"
 serde_derive = "1.0"

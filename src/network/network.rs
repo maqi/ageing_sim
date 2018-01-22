@@ -155,7 +155,7 @@ impl Network {
             .map(|(pfx, _)| *pfx)
             .collect();
         for pfx in merges_to_finalise {
-            println!("Finalising a merge into {:?}", pfx);
+            info!("Finalising a merge into {:?}", pfx);
             self.output.churn += 1; // counting merge as a single churn event
             let pending_merge = self.pending_merges.remove(&pfx).unwrap().into_map();
             let merged_section = self.merged_section(pending_merge.keys(), true);
@@ -245,7 +245,7 @@ impl Network {
             }
             let _ = self.pending_merges.remove(&compatible_merge);
         }
-        println!("Initiating a merge into {:?}", merged_pfx);
+        info!("Initiating a merge into {:?}", merged_pfx);
         let prefixes: Vec<_> = self.nodes
             .keys()
             .filter(|&pfx| merged_pfx.is_ancestor(pfx))
@@ -283,7 +283,7 @@ impl Network {
         self.output.adds += 1;
         self.output.churn += 1;
         let node = Node::new(random(), self.params.init_age);
-        println!("Adding node {:?}", node);
+        info!("Adding node {:?}", node);
         let prefix = self.prefix_for_node(node).unwrap();
         self.event_queue
             .entry(prefix)
@@ -333,7 +333,7 @@ impl Network {
             };
             let old_node = node.clone();
             node.relocate(neighbour);
-            println!(
+            info!(
                 "Relocating {:?} from {:?} to {:?} as {:?}",
                 old_node, src_section, neighbour, node
             );
@@ -369,7 +369,7 @@ impl Network {
         node_and_prefix.map(|(prefix, node)| {
             *self.output.drops_dist.entry(node.age()).or_insert(0) += 1;
             let name = node.name();
-            println!("Dropping node {:?} from section {:?}", name, prefix);
+            info!("Dropping node {:?} from section {:?}", name, prefix);
             self.event_queue
                 .entry(prefix)
                 .or_insert_with(Vec::new)
@@ -384,7 +384,7 @@ impl Network {
         self.output.churn += 1;
         shuffle(&mut self.left_nodes);
         if let Some(mut node) = self.left_nodes.pop() {
-            println!("Rejoining node {:?}", node);
+            info!("Rejoining node {:?}", node);
             node.rejoined(self.params.init_age);
             let prefix = self.prefix_for_node(node).unwrap();
             self.event_queue
