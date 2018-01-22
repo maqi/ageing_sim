@@ -45,10 +45,10 @@ impl Stats {
         }
     }
     pub fn get_header_line() -> &'static str {
-        return &"| Count | Average | Min | Max | Standard dev |";
+        return &"|  Count  | Average | Min | Max | Standard dev |";
     }
     pub fn get_separator_line() -> &'static str {
-        return &"|------:|--------:|----:|----:|-------------:|";
+        return &"|--------:|--------:|----:|----:|-------------:|";
     }
 }
 
@@ -58,7 +58,7 @@ impl fmt::Display for Stats {
         let precision = f.precision().unwrap_or(2usize);
         try!(write!(
             f,
-            "{} | {:.*} | {} | {} | ",
+            "{:>7} | {:>7.*} | {:>3} | {:>3} | ",
             self.count,
             precision,
             self.average,
@@ -66,8 +66,8 @@ impl fmt::Display for Stats {
             self.max
         ));
         match self.standard_deviation {
-            None => write!(f, "None |"),
-            Some(standard_deviation) => write!(f, "{:.*} |", precision, standard_deviation),
+            None => write!(f, "        None |"),
+            Some(standard_deviation) => write!(f, "{:>12.*} |", precision, standard_deviation),
         }
     }
 }

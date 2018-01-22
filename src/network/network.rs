@@ -441,20 +441,20 @@ impl fmt::Display for Network {
         // Network summary
         try!(writeln!(fmt, "|    Metrics    |  Values  |"));
         try!(writeln!(fmt, "|:--------------|---------:|"));
-        try!(writeln!(fmt, "| Adds          | {} |", self.output.adds));
-        try!(writeln!(fmt, "| Drops         | {} |", self.output.drops));
-        try!(writeln!(fmt, "| Rejoins       | {} |", self.output.rejoins));
-        try!(writeln!(fmt, "| Relocations   | {} |", self.output.relocations));
-        try!(writeln!(fmt, "| Rejections    | {} |", self.output.rejections));
-        try!(writeln!(fmt, "| Churns        | {} |", self.output.churn));
+        try!(writeln!(fmt, "| Adds          | {:>8} |", self.output.adds));
+        try!(writeln!(fmt, "| Drops         | {:>8} |", self.output.drops));
+        try!(writeln!(fmt, "| Rejoins       | {:>8} |", self.output.rejoins));
+        try!(writeln!(fmt, "| Relocations   | {:>8} |", self.output.relocations));
+        try!(writeln!(fmt, "| Rejections    | {:>8} |", self.output.rejections));
+        try!(writeln!(fmt, "| Churns        | {:>8} |", self.output.churn));
         let sections = self.num_sections();
-        try!(writeln!(fmt, "| Sections      | {} |", sections));
+        try!(writeln!(fmt, "| Sections      | {:>8} |", sections));
         let complete = self.complete_sections();
         if complete != sections {
-            try!(writeln!(fmt, "| Complete      | {} |", complete));
+            try!(writeln!(fmt, "| Complete      | {:>8} |", complete));
         }
-        try!(writeln!(fmt, "| Section nodes | {} |", usize::sum(self.nodes.values().map(|s| s.len()))));
-        try!(writeln!(fmt, "| Left nodes    | {} |", self.left_nodes.len()));
+        try!(writeln!(fmt, "| Section nodes | {:>8} |", usize::sum(self.nodes.values().map(|s| s.len()))));
+        try!(writeln!(fmt, "| Left nodes    | {:>8} |", self.left_nodes.len()));
         try!(writeln!(fmt));
 
         // Distribution of sections per prefix length
@@ -468,8 +468,8 @@ impl fmt::Display for Network {
         try!(writeln!(fmt, "| Prefix len {}", Stats::get_header_line()));
         try!(writeln!(fmt, "|:-----------{}", Stats::get_separator_line()));
         for i in lengths {
-            try!(writeln!(fmt, "| {} | {}", i, Stats::new(distribution.get(&i).unwrap())))
+            try!(writeln!(fmt, "| {:>10} | {}", i, Stats::new(distribution.get(&i).unwrap())))
         }
-        writeln!(fmt, "| All | {}", Stats::new(&self.nodes.values().map(|s| s.len()).collect()))
+        writeln!(fmt, "|        All | {}", Stats::new(&self.nodes.values().map(|s| s.len()).collect()))
     }
 }

@@ -216,6 +216,7 @@ fn main() {
         network.process_events();
     }
 
+    println!("...Iteration {}", params.iterations - 1);
     println!("Network state:\n{}", network);
     println!("");
 
