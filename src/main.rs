@@ -122,7 +122,7 @@ fn get_params() -> Params {
         .get_matches();
     let init_age = matches
         .value_of("initage")
-        .unwrap_or("1")
+        .unwrap_or("4")
         .parse()
         .expect("Initial age must be a number!");
     let split = matches

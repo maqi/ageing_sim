@@ -294,13 +294,13 @@ impl Network {
     /// Calculates the sum of weights for the dropping probability.
     /// When choosing the node to be dropped, every node is assigned a weight, so that older nodes
     /// have less chance of dropping. This helps in calculating which node should be dropped.
-    fn total_drop_weight(&self) -> f64 {
-        self.nodes
-            .iter()
-            .flat_map(|(_, s)| s.nodes().into_iter())
-            .map(|n| n.drop_probability(self.params.drop_dist))
-            .sum()
-    }
+    // fn total_drop_weight(&self) -> f64 {
+    //     self.nodes
+    //         .iter()
+    //         .flat_map(|(_, s)| s.nodes().into_iter())
+    //         .map(|n| n.drop_probability(self.params.drop_dist))
+    //         .sum()
+    // }
 
     /// Returns the prefix a node should belong to.
     fn prefix_for_node(&self, node: Node) -> Option<Prefix> {
@@ -348,25 +348,23 @@ impl Network {
     /// Drops a random node from the network by sending a `Lost` event to the section.
     /// The probability of a given node dropping is weighted based on its age.
     pub fn drop_random_node(&mut self) {
-        self.output.drops += 1;
-        self.output.churn += 1;
-        let total_weight = self.total_drop_weight();
-        let mut drop = random::<f64>() * total_weight;
         let node_and_prefix = {
             let mut res = None;
             let nodes_iter = self.nodes
                 .iter()
-                .flat_map(|(p, s)| s.nodes().into_iter().map(move |n| (*p, n)));
+                .flat_map(|(p, s)| s.sort_by_age().into_iter().map(move |n| (*p, n)));
             for (p, n) in nodes_iter {
-                if n.drop_probability(self.params.drop_dist) > drop {
+                let drop = random::<usize>();
+                if drop % 2.0f64.powf(n.age() as f64) as usize == 0 {
                     res = Some((p, n));
                     break;
                 }
-                drop -= n.drop_probability(self.params.drop_dist);
             }
             res
         };
         node_and_prefix.map(|(prefix, node)| {
+            self.output.drops += 1;
+            self.output.churn += 1;
             *self.output.drops_dist.entry(node.age()).or_insert(0) += 1;
             let name = node.name();
             info!("Dropping node {:?} from section {:?}", name, prefix);

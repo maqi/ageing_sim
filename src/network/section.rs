@@ -80,7 +80,12 @@ impl Section {
         self.nodes.len()
     }
 
-    /// Returns the list of nodes in the section sorted by age.
+    /// Returns the list of nodes in the section sorted by age, from youngest to oldest.
+    pub fn sort_by_age(&self) -> Vec<Node> {
+        self.nodes_by_age().iter().rev().cloned().collect()
+    }
+
+    /// Returns the list of nodes in the section sorted by age, from oldest to younest.
     fn nodes_by_age(&self) -> Vec<Node> {
         let mut by_age: Vec<_> = self.nodes.iter().map(|(_, n)| *n).collect();
         by_age.sort_by_key(|x| -(x.age() as i8));
@@ -188,7 +193,7 @@ impl Section {
         }
         let event_hash = event.hash();
         let trailing_zeros = trailing_zeros(event_hash);
-        let node_to_age = self.choose_for_relocation(trailing_zeros + params.init_age);
+        let node_to_age = self.choose_for_relocation(trailing_zeros + params.init_age - 1);
         if let Some(node) = node_to_age {
             let _ = self.relocate(node.name());
             vec![SectionEvent::NeedRelocate(node)]
