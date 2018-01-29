@@ -4,7 +4,7 @@ use chain::{Block, Chain, Event, Hash};
 use log;
 use message::{Request, Response};
 use node::{self, Node};
-use params::{Params, RelocationStrategy};
+use params::Params;
 use prefix::{Name, Prefix};
 use std::fmt;
 use std::mem;
@@ -314,15 +314,7 @@ impl Section {
         if candidates.is_empty() {
             return None;
         }
-
-        match params.relocation_strategy {
-            RelocationStrategy::YoungestFirst => {
-                candidates.sort_by_key(|node| node.age());
-            }
-            RelocationStrategy::OldestFirst => {
-                candidates.sort_by_key(|node| u64::MAX - node.age());
-            }
-        }
+        candidates.sort_by_key(|node| u64::MAX - node.age());
 
         let age = candidates[0].age();
         let index = candidates
